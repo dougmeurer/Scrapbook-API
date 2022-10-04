@@ -8,7 +8,6 @@ const currentUser = require("../middlewares/currentUser");
 
 router.post("/create/", isAuth, currentUser, async (req, res) => {
   try {
-
     const newCollection = await CollectionModel.create({
       ...req.body,
       author: req.thisUser._id,
@@ -25,9 +24,8 @@ router.post("/create/", isAuth, currentUser, async (req, res) => {
   }
 });
 
-router.get("/collection", isAuth, currentUser, async (req, res) => {
+router.get("/collections", isAuth, currentUser, async (req, res) => {
   try {
-
     const allCollections = await CollectionModel.find();
 
     return res.status(200).json(allCollections);
@@ -43,7 +41,6 @@ router.get(
   currentUser,
   async (req, res) => {
     try {
-
       const { collectionId } = req.params;
 
       const getCollection = await CollectionModel.findById(collectionId);
@@ -58,7 +55,6 @@ router.get(
 
 router.get("/my-collections", isAuth, currentUser, async (req, res) => {
   try {
-
     const myCollections = await CollectionModel.find({
       author: req.thisUser._id,
     }).populate("photos");
@@ -72,7 +68,6 @@ router.get("/my-collections", isAuth, currentUser, async (req, res) => {
 
 router.put("/edit/:collectionId", isAuth, currentUser, async (req, res) => {
   try {
-
     const { collectionId } = req.params;
 
     const editCollection = await CollectionModel.findByIdAndUpdate(
@@ -94,7 +89,6 @@ router.post(
   currentUser,
   async (req, res) => {
     try {
-
       const { collectionId } = req.params;
 
       const toCollection = await UserModel.findByIdAndUpdate(
@@ -121,7 +115,6 @@ router.put(
   currentUser,
   async (req, res) => {
     try {
-
       const { collectionId } = req.params;
 
       const fromCollection = await UserModel.findByIdAndUpdate(
@@ -142,7 +135,6 @@ router.put(
 
 router.put("/add-like/:collectionId", isAuth, currentUser, async (req, res) => {
   try {
-
     const { collectionId } = req.params;
 
     const addLike = await CollectionModel.findByIdAndUpdate(
@@ -153,7 +145,7 @@ router.put("/add-like/:collectionId", isAuth, currentUser, async (req, res) => {
       { new: true }
     );
 
-    await UserModel.findByIdAndUpdate(req.thisUser._id)
+    await UserModel.findByIdAndUpdate(req.thisUser._id);
     return res.status(200).json(addLike);
   } catch (error) {
     console.log(error);
@@ -167,7 +159,6 @@ router.put(
   currentUser,
   async (req, res) => {
     try {
-      
       const { collectionId } = req.params;
 
       const revokeLike = await CollectionModel.findByIdAndUpdate(
@@ -184,20 +175,35 @@ router.put(
   }
 );
 
-router.delete('/delete/:collectionId', isAuth, currentUser, async(req,res)=> {
-  try {
+router.delete(
+  "/delete/:collectionId",
+  isAuth,
+  currentUser,
+  async (req, res) => {
+    try {
+      const { collectionId } = req.params;
 
-    const {collectionId} = req.params
+      const deleteCollection = await CollectionModel.findByIdAndDelete(
+        collectionId,
+        { new: true }
+      );
 
-    const deleteCollection = await CollectionModel.findByIdAndDelete(collectionId)
+      await UserModel.updateMany(
+        { collections: collectionId },
+        {
+          $pull: { collections: collectionId },
+        }
+      );
 
-    await UserModel.findOneAndDelete(collectionId)
+      deleteCollection.photos.forEach(async (photo) => {
+        await PhotoModel.findByIdAndDelete(photo._id);
+      });
 
-    await PhotoModel.deleteMany({})
-    
-  } catch (error) {
-     console.log(error);
-     res.status(400).json(error);
+      return res.send("Collection deleted, users updated, photos deleted.");
+    } catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
   }
-})
+);
 module.exports = router;

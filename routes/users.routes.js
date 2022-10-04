@@ -8,6 +8,7 @@ const nodemailer = require("nodemailer");
 const getToken = require("../config/jwt.config");
 const isAuth = require("../middlewares/isAuth");
 const currentUser = require("../middlewares/currentUser");
+const PhotoModel = require("../models/Photo.model");
 
 let transporter = nodemailer.createTransport({
   service: "Outlook",
@@ -231,5 +232,32 @@ router.put(
     }
   }
 );
+
+router.delete("/delete", isAuth, currentUser, async (req, res) => {
+  try {
+    const deletedUser = await UserModel.findByIdAndDelete(req.thisUser._id, {
+      new: true,
+    });
+
+    await UserModel.deleteMany(
+      { followers: req.thisUser._id, following: req.thisUser._id },
+      { followers: req.thisUser._id, following: req.thisUser._id }
+    );
+
+    await PhotoModel.deleteMany(
+      { uploadedBy: req.thisUser._id },
+      { uploadedBy: req.thisUser._id }
+    );
+
+    deletedUser.collections.forEach(async (collection) => {
+      await CollectionModel.findByIdAndDelete(collection._id);
+    });
+
+    return res.send("User deleted, photos deleted, collections deleted");
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+});
 
 module.exports = router;

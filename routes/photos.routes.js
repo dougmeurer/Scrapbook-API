@@ -1,15 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const UserModel = require("../models/User.model");
 const CollectionModel = require("../models/Collection.model");
 const PhotoModel = require("../models/Photo.model");
-const getToken = require("../config/jwt.config");
 const isAuth = require("../middlewares/isAuth");
 const currentUser = require("../middlewares/currentUser");
 
 router.post("/create/:collectionId", isAuth, currentUser, async (req, res) => {
   try {
     const { collectionId } = req.params;
+
+    const coll = await CollectionModel.findById(collectionId)
+
+    if (!coll) {
+      return res.status(404).json({ message: "collection not found!" });
+    }
 
     const newPhoto = await PhotoModel.create({
       ...req.body,
@@ -22,6 +26,17 @@ router.post("/create/:collectionId", isAuth, currentUser, async (req, res) => {
     });
 
     return res.status(200).json(newPhoto);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
+
+router.get("/all-photos", isAuth, currentUser, async (req, res) => {
+  try {
+    const allPhotos = await PhotoModel.find();
+
+    return res.status(200).json(allPhotos);
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
@@ -98,7 +113,7 @@ router.delete("/delete/:photoId", isAuth, currentUser, async (req, res) => {
   try {
     const { photoId } = req.params;
 
-    await PhotoModel.findByIdAndDelete(photoId);
+    await PhotoModel.findByIdAndDelete(photoId, { new: true });
 
     await CollectionModel.findByIdAndUpdate(
       photoId,
