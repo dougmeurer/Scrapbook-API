@@ -12,7 +12,6 @@ router.post(
   (req, res) => {
     console.log(req.file);
     if (!req.file) {
-      console.log("erro na rota back");
       return res.status(400).json({ message: "Upload Failed!" });
     }
 
