@@ -9,7 +9,7 @@ async function currentUser(req, res, next) {
       },
       { passwordHash: 0 }
     );
-
+    console.log(user);
     if (!user.confirmedEmail) {
       return res
         .status(400)
