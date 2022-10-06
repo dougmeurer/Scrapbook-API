@@ -8,9 +8,11 @@ router.post(
   "/upload-image",
   isAuth,
   currentUser,
-  fileUploader.single("images"),
+  fileUploader.single("picture"),
   (req, res) => {
+    console.log(req.file);
     if (!req.file) {
+      console.log("erro na rota back");
       return res.status(400).json({ message: "Upload Failed!" });
     }
 

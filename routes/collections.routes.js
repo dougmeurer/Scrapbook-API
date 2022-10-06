@@ -43,7 +43,9 @@ router.get(
     try {
       const { collectionId } = req.params;
 
-      const getCollection = await CollectionModel.findById(collectionId);
+      const getCollection = await CollectionModel.findById(collectionId)
+        .populate("author")
+        .populate("photos");
 
       return res.status(200).json(getCollection);
     } catch (error) {

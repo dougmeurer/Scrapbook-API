@@ -83,7 +83,7 @@ router.get("/activate-account/:userId", async (req, res) => {
   }
 });
 
-router.get("/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -124,7 +124,9 @@ router.get("/profile", isAuth, currentUser, async (req, res) => {
 
 router.get("/all-users", isAuth, currentUser, async (req, res) => {
   try {
-    const allUsers = await UserModel.find({}, { passwordHash: 0 });
+    const allUsers = await UserModel.find({}, { passwordHash: 0 }).populate(
+      "collections"
+    );
     // excessao para o delete._doc pq da erro
     return res.status(200).json(allUsers);
   } catch (error) {

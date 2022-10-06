@@ -9,7 +9,7 @@ router.post("/create/:collectionId", isAuth, currentUser, async (req, res) => {
   try {
     const { collectionId } = req.params;
 
-    const coll = await CollectionModel.findById(collectionId)
+    const coll = await CollectionModel.findById(collectionId);
 
     if (!coll) {
       return res.status(404).json({ message: "collection not found!" });

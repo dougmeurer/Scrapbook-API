@@ -12,7 +12,10 @@ const userSchema = new Schema(
       match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
     },
     passwordHash: { type: String, required: true },
-    profilePicture: { type: String, default: "shorturl.at/bhM67" },
+    profilePicture: {
+      type: String,
+      default: "https://cdn-icons-png.flaticon.com/512/1053/1053244.png?w=360",
+    },
     collections: [{ type: Schema.Types.ObjectId, ref: "Collection" }],
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: Schema.Types.ObjectId, ref: "User" }],
