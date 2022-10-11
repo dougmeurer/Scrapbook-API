@@ -11,7 +11,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    allowed_formats: ["jpg", "png", "jpeg"],
+    allowed_formats: ["jpg", "png"],
     folder: "SnapScrapMedia",
   },
 });

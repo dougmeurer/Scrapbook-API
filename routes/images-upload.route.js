@@ -10,7 +10,6 @@ router.post(
   currentUser,
   fileUploader.single("picture"),
   (req, res) => {
-    console.log(req.file);
     if (!req.file) {
       return res.status(400).json({ message: "Upload Failed!" });
     }

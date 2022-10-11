@@ -44,7 +44,7 @@ router.get(
       const { collectionId } = req.params;
 
       const getCollection = await CollectionModel.findById(collectionId)
-        .populate("author")
+        .populate("author", { passwordHash: 0 })
         .populate("photos");
 
       return res.status(200).json(getCollection);
@@ -60,6 +60,7 @@ router.get("/my-collections", isAuth, currentUser, async (req, res) => {
     const myCollections = await CollectionModel.find({
       author: req.thisUser._id,
     }).populate("photos");
+
 
     return res.status(200).json(myCollections);
   } catch (error) {

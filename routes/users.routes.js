@@ -49,8 +49,8 @@ router.post("/sign-up", async (req, res) => {
       from: process.env.USER,
       to: email,
       subject: "Account Activation",
-      text: "Welcome to SnapScrap, Please confirm your e-mail below and start your journey Scrapping pictures and collections away",
-      html: `<p>Click on the below link to confirm your account.</p>
+      html: `<p>Welcome to SnapScrap, Please confirm your e-mail below and start your journey Scrapping pictures and collections away</p>
+      <p>Click on the below link to confirm your account.</p>
       <a href=http://localhost:8000/users/activate-account/${newUser._id}>Click Here</a>`,
     };
 
@@ -115,7 +115,12 @@ router.post("/login", async (req, res) => {
 
 router.get("/profile", isAuth, currentUser, async (req, res) => {
   try {
-    return res.status(200).json(req.thisUser);
+    const thisUser = await UserModel.findById(req.thisUser, { passwordHash: 0 })
+      .populate("followers", { passwordHash: 0 })
+      .populate("following", { passwordHash: 0 })
+      .populate("collections", { passwordHash: 0 });
+
+    return res.status(200).json(thisUser);
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
@@ -130,7 +135,6 @@ router.get("/all-users", isAuth, currentUser, async (req, res) => {
     // excessao para o delete._doc pq da erro
     return res.status(200).json(allUsers);
   } catch (error) {
-    console.log("no erro", error);
     res.status(400).json(error);
   }
 });
@@ -140,9 +144,16 @@ router.get("/user/:userId", isAuth, currentUser, async (req, res) => {
     const { userId } = req.params;
 
     const user = await UserModel.findById(userId)
-      .populate("followers")
-      .populate("following")
-      .populate("collections");
+      .populate("followers", { passwordHash: 0 })
+      .populate("following", { passwordHash: 0 })
+      .populate("collections", { passwordHash: 0 })
+      .populate({
+        path: "collections",
+        populate: {
+          path: "photos",
+          model: "Photo",
+        },
+      });
 
     delete user._doc.passwordHash;
 

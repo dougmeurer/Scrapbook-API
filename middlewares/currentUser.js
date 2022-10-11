@@ -9,7 +9,6 @@ async function currentUser(req, res, next) {
       },
       { passwordHash: 0 }
     );
-    console.log(user);
     if (!user.confirmedEmail) {
       return res
         .status(400)
@@ -19,7 +18,6 @@ async function currentUser(req, res, next) {
 
     next();
   } catch (error) {
-    console.log("dentro do erro", error);
     return res.status(500).json(error);
   }
 }
