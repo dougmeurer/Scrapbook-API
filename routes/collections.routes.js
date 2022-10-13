@@ -26,7 +26,7 @@ router.post("/create/", isAuth, currentUser, async (req, res) => {
 
 router.get("/collections", isAuth, currentUser, async (req, res) => {
   try {
-    const allCollections = await CollectionModel.find();
+    const allCollections = await CollectionModel.find().populate("photos");
 
     return res.status(200).json(allCollections);
   } catch (error) {
